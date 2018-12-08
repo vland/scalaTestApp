@@ -48,6 +48,7 @@ lazy val worker = project
       libraryDependencies ++= Seq(
         dependencies.akkaActor,
         dependencies.squeryl,
+        dependencies.postgresql,
         dependencies.scalaTest
       )
     )
@@ -68,7 +69,10 @@ lazy val settings = Seq(
       "-encoding",
       "utf8"
     ),
-    resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases"
+    resolvers ++= Seq(
+      "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases",
+      "Postgresql repository" at "https://mvnrepository.com/artifact/org.postgresql/postgresql"
+    )
 )
 
 lazy val dependencies =
@@ -81,6 +85,7 @@ lazy val dependencies =
       val akkaMultiNodeTestKit = "com.typesafe.akka" %% "akka-multi-node-testkit" % akkaVersion
       val scalaTest = "org.scalatest" %% "scalatest" % "3.0.5" % Test
       val squeryl = "org.squeryl" %% "squeryl" % "0.9.5-7"
+      val postgresql = "org.postgresql" % "postgresql" % "9.4-1200-jdbc41"
     }
 
 lazy val assemblySettings = Seq(
