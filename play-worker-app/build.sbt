@@ -19,14 +19,13 @@ lazy val common = project
     .settings(
       settings,
       libraryDependencies ++= Seq(
-        dependencies.akkaActor
+        dependencies.playapi
       )
     )
 
 lazy val play = project
     .settings(
       settings,
-      assemblySettings,
       libraryDependencies ++= Seq(
         dependencies.akkaActor,
         dependencies.akkaRemote,
@@ -47,6 +46,9 @@ lazy val worker = project
       assemblySettings,
       libraryDependencies ++= Seq(
         dependencies.akkaActor,
+        dependencies.akkaCluster,
+        dependencies.akkaClusterMetrics,
+        dependencies.akkaClusterTools,
         dependencies.squeryl,
         dependencies.postgresql,
         dependencies.scalaTest
@@ -70,8 +72,7 @@ lazy val settings = Seq(
       "utf8"
     ),
     resolvers ++= Seq(
-      "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases",
-      "Postgresql repository" at "https://mvnrepository.com/artifact/org.postgresql/postgresql"
+      "Default repository" at "https://repo1.maven.org/maven2/"
     )
 )
 
@@ -86,12 +87,14 @@ lazy val dependencies =
       val scalaTest = "org.scalatest" %% "scalatest" % "3.0.5" % Test
       val squeryl = "org.squeryl" %% "squeryl" % "0.9.5-7"
       val postgresql = "org.postgresql" % "postgresql" % "9.4-1200-jdbc41"
+      val playapi = "com.typesafe.play" %% "play-json" % "2.6.8"
     }
 
 lazy val assemblySettings = Seq(
   assemblyJarName in assembly := name.value + ".jar",
   assemblyMergeStrategy in assembly := {
     case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+    case "reference.conf" => MergeStrategy.concat
     case _ => MergeStrategy.first
   }
 )
