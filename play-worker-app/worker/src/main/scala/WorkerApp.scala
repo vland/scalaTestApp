@@ -1,23 +1,25 @@
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import akka.cluster.Cluster
 import akka.cluster.ClusterEvent._
+import akka.cluster.client.ClusterClientReceptionist
 import com.typesafe.config.ConfigFactory
 import db.DbAdapter
 import db.entity.WordInfo
+//import play.api.libs.json.{JsArray, JsObject, Json}
 
 object WorkerApp extends App{
 
   def startNodes(ports: Seq[String]): Unit = {
     ports foreach { port =>
       // Override the configuration of the port
-      val config = ConfigFactory.parseString(s"""
-        akka.remote.artery.canonical.port=$port
-        """).withFallback(ConfigFactory.load())
+      val config = ConfigFactory.parseString(s"""akka.remote.netty.tcp.port=$port""").withFallback(ConfigFactory.load())
 
       // Create an Akka system
       val system = ActorSystem("ClusterSystem", config)
+
       // Create an actor that handles cluster domain events
-      system.actorOf(Props[WorkerAppListener], name = "workerAppClusterListener")
+      val workerService = system.actorOf(Props[WorkerAppListener], name = "workerAppClusterListener")
+      ClusterClientReceptionist(system).registerService(workerService)
     }
   }
 
@@ -29,6 +31,7 @@ object WorkerApp extends App{
 }
 
 class WorkerAppListener extends Actor with ActorLogging {
+  var senderActor : ActorRef = null;
 
   val cluster = Cluster(context.system)
 
@@ -53,8 +56,9 @@ class WorkerAppListener extends Actor with ActorLogging {
       val res = findWord(item.id)
       log.info(s"We found something : ${res.value}")
     }
-    case _: MemberEvent =>
-      log.info("Something other happend")
+    case e =>
+      log.info(s"Someone asking for a word? : $e ")
+      sender() ! "I am thinking...."
   }
 
   private def findWord(id: String): WordInfo = {
@@ -67,6 +71,8 @@ class WorkerAppListener extends Actor with ActorLogging {
     } else {
       // TODO: calculate permutation
       var permutation = "namePermutation"
+      //val obj = Json.obj(id => JsArray(id.permutations))
+      // id.permutations
       dbAdapter.insertWord(id, permutation)
       result = new WordInfo(id, permutation)
     }
