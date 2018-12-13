@@ -28,9 +28,7 @@ lazy val play = project
       settings,
       libraryDependencies ++= Seq(
         dependencies.akkaActor,
-        dependencies.akkaRemote,
         dependencies.akkaCluster,
-        dependencies.akkaClusterMetrics,
         dependencies.akkaClusterTools,
         dependencies.akkaMultiNodeTestKit,
         dependencies.scalaTest
@@ -47,7 +45,6 @@ lazy val worker = project
       libraryDependencies ++= Seq(
         dependencies.akkaActor,
         dependencies.akkaCluster,
-        dependencies.akkaClusterMetrics,
         dependencies.akkaClusterTools,
         dependencies.squeryl,
         dependencies.postgresql,
@@ -79,9 +76,7 @@ lazy val settings = Seq(
 lazy val dependencies =
     new {
       val akkaActor = "com.typesafe.akka" %% "akka-actor" % akkaVersion
-      val akkaRemote = "com.typesafe.akka" %% "akka-remote" % akkaVersion
       val akkaCluster = "com.typesafe.akka" %% "akka-cluster" % akkaVersion
-      val akkaClusterMetrics = "com.typesafe.akka" %% "akka-cluster-metrics" % akkaVersion
       val akkaClusterTools = "com.typesafe.akka" %% "akka-cluster-tools" % akkaVersion
       val akkaMultiNodeTestKit = "com.typesafe.akka" %% "akka-multi-node-testkit" % akkaVersion
       val scalaTest = "org.scalatest" %% "scalatest" % "3.0.5" % Test

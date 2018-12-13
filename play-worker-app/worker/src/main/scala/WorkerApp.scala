@@ -4,8 +4,8 @@ import akka.cluster.ClusterEvent._
 import akka.cluster.client.ClusterClientReceptionist
 import com.typesafe.config.ConfigFactory
 import db.DbAdapter
-import db.entity.WordInfo
-//import play.api.libs.json.{JsArray, JsObject, Json}
+import db.entity.{Json, WordInfo}
+import play.api.libs.json._
 
 object WorkerApp extends App{
 
@@ -45,38 +45,34 @@ class WorkerAppListener extends Actor with ActorLogging {
   }
 
   def receive = {
-    case MemberUp(member) =>
-      log.info("Member is Up: {}", member.address)
-    case UnreachableMember(member) =>
-      log.info("Member detected as unreachable: {}", member.address)
-    case MemberRemoved(member, previousStatus) =>
-      log.info("Member is removed: {}", member.address, previousStatus)
-    case (item: PermutationResult) => {
-      log.info("Need to find a word!")
-      val res = findWord(item.id)
-      log.info(s"We found something : ${res.value}")
+    case (item: PermutationRequest) => {
+      val res = findWord(item.word)
+      sender() ! new PermutationResult(item.word, res)
     }
-    case e =>
-      log.info(s"Someone asking for a word? : $e ")
-      sender() ! "I am thinking...."
+    //case MemberUp(member) =>
+      //log.info("Member is Up: {}", member.address)
+    //case UnreachableMember(member) =>
+      //log.info("Member detected as unreachable: {}", member.address)
+    //case MemberRemoved(member, previousStatus) =>
+      //log.info("Member is removed: {}", member.address, previousStatus)
   }
 
-  private def findWord(id: String): WordInfo = {
+  private def findWord(id: String): JsObject = {
 
-    var result: WordInfo = null
+    var result: JsObject = null
     val dbAdapter = new DbAdapter
     var searchResult = dbAdapter.findWord(id)
     if (searchResult != None) {
-      result = searchResult.get
+      result = searchResult.get.value
     } else {
-      // TODO: calculate permutation
-      var permutation = "namePermutation"
-      //val obj = Json.obj(id => JsArray(id.permutations))
-      // id.permutations
-      dbAdapter.insertWord(id, permutation)
-      result = new WordInfo(id, permutation)
+      val jsPermutation = JsObject(Seq(id -> Json.toJson(id.permutations.toArray)))
+      dbAdapter.insertWord(new WordInfo(id, jsPermutation))
+      result = jsPermutation
     }
-
     result
   }
+
+  // implicit convertions for custom type
+  implicit def jsObjectToJson(jsObject: JsObject): Json = new Json(jsObject.toString)
+  implicit def jsonToJsObject(json: Json): JsObject = Json.parse(json.value).asInstanceOf[JsObject]
 }

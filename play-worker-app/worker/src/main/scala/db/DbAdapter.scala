@@ -1,10 +1,9 @@
 package db
 
 import com.typesafe.config.ConfigFactory
-import db.entity.WordInfo
-import db.entity.WordLib
+import db.entity.{ WordInfo, WordLib}
 import org.squeryl.adapters.PostgreSqlAdapter
-import org.squeryl.{Session, SessionFactory}
+import org.squeryl.{Session}
 import org.squeryl.PrimitiveTypeMode._
 
 object DbSettings {
@@ -25,6 +24,10 @@ class DbAdapter {
       using(session) {
         result = WordLib.wordsLib.where(w => w.name === name).headOption
       }
+    } catch {
+      case e: Exception => {
+        println(e.toString)
+      }
     }
     finally {
       session.close
@@ -33,7 +36,7 @@ class DbAdapter {
     result
   }
 
-  def insertWord(name: String, value: String) : Unit = {
+  def insertWord(word: WordInfo) : Unit = {
     // TODO: make some refactoring
     // TODO: possible use SessionFactory and transaction
     var session: Session = null
@@ -41,11 +44,16 @@ class DbAdapter {
       session = Session.create(java.sql.DriverManager.getConnection(DbSettings.connectionString, DbSettings.user, DbSettings.password), new PostgreSqlAdapter)
 
       using(session) {
-        WordLib.wordsLib.insert(new WordInfo(name, value))
+        WordLib.wordsLib.insert(word)
       }
     }
     catch {
-      case _: Exception => session.connection.rollback()
+      case e: Exception => {
+        if(session != null) {
+          session.connection.rollback()
+        }
+        println(e.toString)
+      }
     }
     finally {
       session.close
