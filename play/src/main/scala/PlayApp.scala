@@ -1,10 +1,7 @@
 import akka.actor.{Actor, ActorLogging, ActorPath, ActorSystem, Props}
 import akka.cluster.client.{ClusterClient, ClusterClientSettings}
 import com.typesafe.config.ConfigFactory
-import play.api.libs.json.{JsNull, JsObject, Json}
-
-import scala.collection.mutable
-import scala.collection.parallel.immutable
+import play.api.libs.json.{JsObject, Json}
 
 case class ProcessWords(words: Seq[String])
 

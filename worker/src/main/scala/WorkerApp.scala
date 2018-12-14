@@ -50,11 +50,11 @@ class WorkerAppListener extends Actor with ActorLogging {
       sender() ! new PermutationResult(item.word, res)
     }
     //case MemberUp(member) =>
-      //log.info("Member is Up: {}", member.address)
+    //log.info("Member is Up: {}", member.address)
     //case UnreachableMember(member) =>
-      //log.info("Member detected as unreachable: {}", member.address)
+    //log.info("Member detected as unreachable: {}", member.address)
     //case MemberRemoved(member, previousStatus) =>
-      //log.info("Member is removed: {}", member.address, previousStatus)
+    //log.info("Member is removed: {}", member.address, previousStatus)
   }
 
   private def findWord(id: String): JsObject = {
