@@ -5,7 +5,11 @@ import akka.cluster.client.ClusterClientReceptionist
 import com.typesafe.config.ConfigFactory
 import db.DbAdapter
 import db.entity.{Json, WordInfo}
+import play.api.db.DBApi
+import play.api.db.evolutions.Evolutions
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json._
+import play.common._
 
 object WorkerApp extends App{
 
@@ -22,6 +26,16 @@ object WorkerApp extends App{
       ClusterClientReceptionist(system).registerService(workerService)
     }
   }
+
+  // Init database initialization
+  def initDb(): Unit = {
+    lazy val appBuilder = new GuiceApplicationBuilder()
+    lazy val injector = appBuilder.injector()
+    lazy val databaseApi = injector.instanceOf[DBApi]
+    Evolutions.applyEvolutions(databaseApi.database("default"))
+  }
+
+  initDb
 
   if(args.isEmpty) {
     startNodes(Seq("2551", "2552", "0"))

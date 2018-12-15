@@ -1,14 +1,15 @@
+import sbt.Keys._
 
 name := "worker"
-organization in ThisBuild := "com.testapp"
-scalaVersion in ThisBuild := "2.12.8"
+scalaVersion := "2.12.8"
 version := "0.1"
 
-val akkaVersion = "2.5.18"
+val akkaVersion = "2.5.19"
 
 lazy val common = RootProject(file("../common"))
 
 lazy val worker = Project(id = "worker", base = file("."))
+
   .settings(
     settings,
     assemblySettings,
@@ -17,8 +18,11 @@ lazy val worker = Project(id = "worker", base = file("."))
       dependencies.akkaCluster,
       dependencies.akkaClusterTools,
       dependencies.squeryl,
-      dependencies.postgresql,
-      dependencies.scalaTest
+      dependencies.mysqlDriver,
+      dependencies.scalaTest,
+      guice,
+      evolutions,
+      jdbc
     )
   )
   .dependsOn(
@@ -50,7 +54,7 @@ lazy val dependencies =
     val akkaMultiNodeTestKit = "com.typesafe.akka" %% "akka-multi-node-testkit" % akkaVersion
     val scalaTest = "org.scalatest" %% "scalatest" % "3.0.5" % Test
     val squeryl = "org.squeryl" %% "squeryl" % "0.9.5-7"
-    val postgresql = "org.postgresql" % "postgresql" % "9.4-1200-jdbc41"
+    val mysqlDriver = "mysql" % "mysql-connector-java" % "5.1.10"
     val playapi = "com.typesafe.play" %% "play-json" % "2.6.8"
   }
 

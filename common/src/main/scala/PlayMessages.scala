@@ -1,3 +1,5 @@
+package play.common
+
 import play.api.libs.json.JsObject
 
 case class PermutationRequest(word: String) {}

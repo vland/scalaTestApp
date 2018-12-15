@@ -1,42 +1,27 @@
-name := "play"
-organization in ThisBuild := "com.testapp"
-scalaVersion in ThisBuild := "2.12.8"
-version := "0.1"
+import sbt.Keys._
 
-val akkaVersion = "2.5.18"
+version := "0.1"
+scalaVersion := "2.12.8"
+
+val akkaVersion = "2.5.19"
 
 lazy val common = RootProject(file("../common"))
 
-lazy val play = Project(id = "play", base = file("."))
+lazy val playapp = (project in file("."))
+  .enablePlugins(PlayScala)
   .settings(
-    settings,
+    name := """play-app""",
     libraryDependencies ++= Seq(
       dependencies.akkaActor,
       dependencies.akkaCluster,
       dependencies.akkaClusterTools,
       dependencies.akkaMultiNodeTestKit,
-      dependencies.scalaTest
+      dependencies.scalaTest,
+      guice
     )
   )
   .dependsOn(
     common
-  )
-
-lazy val settings = Seq(
-  scalacOptions ++= Seq(
-    "-unchecked",
-    "-feature",
-    "-language:existentials",
-    "-language:higherKinds",
-    "-language:implicitConversions",
-    "-language:postfixOps",
-    "-deprecation",
-    "-encoding",
-    "utf8"
-  ),
-  resolvers ++= Seq(
-    "Default repository" at "https://repo1.maven.org/maven2/"
-  )
 )
 
 lazy val dependencies =

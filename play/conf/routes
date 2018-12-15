@@ -1,0 +1,2 @@
+GET        /                       controllers.Application.index
+POST       /getWords               controllers.Application.getWords
