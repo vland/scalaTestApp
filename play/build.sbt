@@ -15,7 +15,6 @@ lazy val playapp = (project in file("."))
       dependencies.akkaActor,
       dependencies.akkaCluster,
       dependencies.akkaClusterTools,
-      dependencies.akkaMultiNodeTestKit,
       dependencies.scalaTest,
       guice
     )
@@ -29,7 +28,6 @@ lazy val dependencies =
     val akkaActor = "com.typesafe.akka" %% "akka-actor" % akkaVersion
     val akkaCluster = "com.typesafe.akka" %% "akka-cluster" % akkaVersion
     val akkaClusterTools = "com.typesafe.akka" %% "akka-cluster-tools" % akkaVersion
-    val akkaMultiNodeTestKit = "com.typesafe.akka" %% "akka-multi-node-testkit" % akkaVersion
     val scalaTest = "org.scalatest" %% "scalatest" % "3.0.5" % Test
     val squeryl = "org.squeryl" %% "squeryl" % "0.9.5-7"
     val postgresql = "org.postgresql" % "postgresql" % "9.4-1200-jdbc41"

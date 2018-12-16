@@ -2,12 +2,12 @@
 
 # --- !Ups
 
-create table wordinfo
+CREATE TABLE wordinfo
 (
-	name varchar(255) primary key,
-    value text
+	name VARCHAR(255) PRIMARY KEY,
+    value LONGTEXT
 )
 
 # --- !Downs
 
-drop table wordinfo
+DROP TABLE wordinfo

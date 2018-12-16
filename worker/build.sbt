@@ -20,6 +20,7 @@ lazy val worker = Project(id = "worker", base = file("."))
       dependencies.squeryl,
       dependencies.mysqlDriver,
       dependencies.scalaTest,
+      dependencies.logger,
       guice,
       evolutions,
       jdbc
@@ -51,11 +52,11 @@ lazy val dependencies =
     val akkaActor = "com.typesafe.akka" %% "akka-actor" % akkaVersion
     val akkaCluster = "com.typesafe.akka" %% "akka-cluster" % akkaVersion
     val akkaClusterTools = "com.typesafe.akka" %% "akka-cluster-tools" % akkaVersion
-    val akkaMultiNodeTestKit = "com.typesafe.akka" %% "akka-multi-node-testkit" % akkaVersion
     val scalaTest = "org.scalatest" %% "scalatest" % "3.0.5" % Test
     val squeryl = "org.squeryl" %% "squeryl" % "0.9.5-7"
     val mysqlDriver = "mysql" % "mysql-connector-java" % "5.1.10"
     val playapi = "com.typesafe.play" %% "play-json" % "2.6.8"
+    val logger = "org.slf4j" % "slf4j-simple" % "1.6.4"
   }
 
 lazy val assemblySettings = Seq(

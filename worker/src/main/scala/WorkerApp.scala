@@ -16,7 +16,8 @@ object WorkerApp extends App{
   def startNodes(ports: Seq[String]): Unit = {
     ports foreach { port =>
       // Override the configuration of the port
-      val config = ConfigFactory.parseString(s"""akka.remote.netty.tcp.port=$port""").withFallback(ConfigFactory.load())
+      val config = ConfigFactory.parseString(s"""akka.remote.netty.tcp.port=$port""")
+        .withFallback(ConfigFactory.load())
 
       // Create an Akka system
       val system = ActorSystem("ClusterSystem", config)
@@ -61,7 +62,7 @@ class WorkerAppListener extends Actor with ActorLogging {
   def receive = {
     case (item: PermutationRequest) => {
       val res = findWord(item.word)
-      sender() ! new PermutationResult(item.word, res)
+      sender() ! PermutationResult(item.word, res)
     }
     //case MemberUp(member) =>
     //log.info("Member is Up: {}", member.address)

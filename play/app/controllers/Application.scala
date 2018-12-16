@@ -36,7 +36,6 @@ class Application @Inject()(cc: ControllerComponents) extends AbstractController
       val actorCall = playActor ? ProcessWords(wordsRequest.words)
 
       val result = Await.result(actorCall, timeout.duration).asInstanceOf[List[PermutationResult]]
-
       result
     }
 

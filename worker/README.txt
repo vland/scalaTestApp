@@ -1,0 +1,2 @@
+First run of application will create cluster with 2 seeds on ports 2551, 2552 and one new cluster node on different port
+If you want to add new node - run application with parameter = port like "java -jar worker.jar 0"
