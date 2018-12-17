@@ -16,6 +16,7 @@ lazy val playapp = (project in file("."))
       dependencies.akkaCluster,
       dependencies.akkaClusterTools,
       dependencies.scalaTest,
+      dependencies.logger,
       guice
     )
   )
@@ -32,4 +33,5 @@ lazy val dependencies =
     val squeryl = "org.squeryl" %% "squeryl" % "0.9.5-7"
     val postgresql = "org.postgresql" % "postgresql" % "9.4-1200-jdbc41"
     val playapi = "com.typesafe.play" %% "play-json" % "2.6.8"
+    val logger = "org.slf4j" % "slf4j-simple" % "1.6.4"
   }

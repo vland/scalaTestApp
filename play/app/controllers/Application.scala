@@ -10,6 +10,7 @@ import play.api.libs.json._
 import play.api.mvc._
 import play.common.PermutationResult
 import javax.inject._
+import org.slf4j.LoggerFactory
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -19,6 +20,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class Application @Inject()(system: ActorSystem,
                             cc: ControllerComponents)
   extends AbstractController(cc) {
+
+  val logger = LoggerFactory.getLogger(classOf[Application])
 
   def index = Action {
     Ok("Call POST /getWords method with request like { \"values\" : [\"milk\", \"house\"]} to permutate all words")
@@ -31,22 +34,26 @@ class Application @Inject()(system: ActorSystem,
     val timeoutPeriod = ConfigFactory.load().getLong("timeoutPeriod")
     val playActor = system.actorOf(Props[PlayActor], name = "PlayActor")
 
-    val futureResponse: Future[List[PermutationResult]] = {
+    try{
+      val futureResponse: Future[List[PermutationResult]] = {
+        implicit val timeout = Timeout(timeoutPeriod seconds)
+        ask(playActor, ProcessWords(wordsRequest.words)).mapTo[List[PermutationResult]]
+      }
 
-      implicit val timeout = Timeout(timeoutPeriod seconds)
+      futureResponse.map(wordMap => {
+        // converting result to JsObject
+        val resultJsObject: JsObject = wordMap.foldLeft(JsObject(Seq.empty)) {(res, item) => item.permutation ++ res}
 
-      val result = ask(playActor, ProcessWords(wordsRequest.words)).mapTo[List[PermutationResult]]
-      result
+        // stopping other actors
+        playActor ! "Stop"
+        Ok(resultJsObject)
+      })
+    } catch {
+      case e: Throwable => {
+        playActor ! "Stop"
+        logger.error(e.getMessage, e)
+        throw e
+      }
     }
-
-    futureResponse.map(wordMap => {
-      // converting result to JsObject
-      var resultJsObject: JsObject = JsObject(Seq.empty)
-      wordMap.map(x => resultJsObject = x.permutation ++ resultJsObject)
-
-      // stopping other actors
-      playActor ! "Stop"
-      Ok(resultJsObject)
-    })
   }
 }

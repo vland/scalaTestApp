@@ -38,16 +38,10 @@ object WorkerApp extends App{
 
   initDb
 
-  if(args.isEmpty) {
-    startNodes(Seq("2551", "2552", "0"))
-  } else {
-    startNodes(args)
-  }
+  startNodes(if(args.isEmpty) Seq("2551", "2552", "0") else args)
 }
 
 class WorkerAppListener extends Actor with ActorLogging {
-  var senderActor : ActorRef = null;
-
   val cluster = Cluster(context.system)
 
   override def preStart(): Unit = {
@@ -74,17 +68,17 @@ class WorkerAppListener extends Actor with ActorLogging {
 
   private def findWord(id: String): JsObject = {
 
-    var result: JsObject = null
     val dbAdapter = new DbAdapter
-    var searchResult = dbAdapter.findWord(id)
-    if (searchResult != None) {
-      result = searchResult.get.value
-    } else {
-      val jsPermutation = JsObject(Seq(id -> Json.toJson(id.permutations.toArray)))
-      dbAdapter.insertWord(new WordInfo(id, jsPermutation))
-      result = jsPermutation
+    val searchResult = dbAdapter.findWord(id)
+
+    searchResult match {
+      case _: Some[WordInfo] => searchResult.get.value
+      case None => {
+        val jsPermutation = JsObject(Seq(id -> Json.toJson(id.permutations.toArray)))
+        dbAdapter.insertWord(new WordInfo(id, jsPermutation))
+        jsPermutation
+      }
     }
-    result
   }
 
   // implicit convertions for custom type
