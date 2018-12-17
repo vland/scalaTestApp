@@ -11,7 +11,7 @@ import play.api.libs.json._
 import play.api.mvc._
 import play.common.PermutationResult
 
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -27,16 +27,12 @@ class Application @Inject()(cc: ControllerComponents) extends AbstractController
     val wordsRequest = json.as[WordsRequest]
     val timeoutPeriod = ConfigFactory.load().getLong("timeoutPeriod")
 
-    val futureResponse: Future[List[PermutationResult]] = Future {
+    val futureResponse: Future[List[PermutationResult]] = {
       val system = ActorSystem("SystemActor")
-
       implicit val timeout = Timeout(timeoutPeriod seconds)
 
       val playActor = system.actorOf(Props[PlayActor], name = "PlayActor")
-      val actorCall = playActor ? ProcessWords(wordsRequest.words)
-
-      val result = Await.result(actorCall, timeout.duration).asInstanceOf[List[PermutationResult]]
-      result
+      ask(playActor, ProcessWords(wordsRequest.words)).mapTo[List[PermutationResult]]
     }
 
     futureResponse.map(wordMap => {
