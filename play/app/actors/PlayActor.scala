@@ -1,13 +1,13 @@
 package actors
 
-import akka.actor.{Actor, ActorLogging, ActorPath}
+import akka.actor.{Actor, ActorLogging, ActorPath, PoisonPill}
 import akka.cluster.client.{ClusterClient, ClusterClientSettings}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import play.common.{PermutationRequest, PermutationResult}
 
-import scala.concurrent.{Future}
+import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.pattern.pipe
@@ -40,6 +40,10 @@ class PlayActor extends Actor with ActorLogging{
 
       Future.sequence(workerSeq)
         .mapTo[List[PermutationResult]] pipeTo sender()
+    }
+    case "Stop" => {
+      client ! PoisonPill
+      self ! PoisonPill
     }
   }
 }
